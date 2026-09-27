@@ -1,39 +1,27 @@
 import cv2, time
+
 print('BAD APPLE INIT')
 
 file_path="bad-apple.mp4"
+
 video=cv2.VideoCapture(file_path)
-target_frame=100
-video.set(cv2.CAP_PROP_POS_FRAMES, target_frame)
-print(video.read())
 
-input('INIT VIDEO READ COMPLETE\nPRESS ENTER TO CONTINUE')
-ret,frame=video.read()
+def run_filter_over_frame(frame, video_file, white_cutoff=100):
+    video_file.set(cv2.CAP_PROP_POS_FRAMES, frame)
+    ret,frameimg=video_file.read()
+    for pixely in range(len(frameimg)):
+        for pixelx in range(len(frameimg[pixely])):
+            if frameimg[pixely][pixelx][0]>white_cutoff:
+                frameimg[pixely][pixelx]=[2,253,253]
+            else:
+                frameimg[pixely][pixelx]=[0,253,0]
+    return frameimg
 
-cv2.imshow("Image", frame)
+run_filter_over_frame(100,video)
 
-cv2.waitKey(2000)
-
-input('IMAGE RENDERED\n APPLYING COLOR FILTER\nPRESS ENTER TO CONTINUE')
-
-new_frame=frame.copy()
-
-frame_stats=(len(new_frame[0]),len(new_frame))
-
-print('FRAME STATS: ',frame_stats)
-
-for pixely in range(len(new_frame)):
-    for pixelx in range(len(new_frame[pixely])):
-        if new_frame[pixely][pixelx][0]>100:
-            new_frame[pixely][pixelx]=[2,253,253]
-        else:
-            new_frame[pixely][pixelx]=[0,253,0]
-
-
-cv2.imshow("Image", new_frame)
+cv2.imshow("Image", run_filter_over_frame(100,video))
 
 cv2.waitKey(10000)
 
 video.release()
 cv2.destroyAllWindows()
-
